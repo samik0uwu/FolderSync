@@ -12,7 +12,7 @@ public class FolderCheck
 
     public FolderCheck(string source, string target, string interval, string log)
     {
-        sourcePath = source;
+        this.sourcePath = source;
         this.targetPath = target;
         this.interval = interval;
         this.log = log;
@@ -62,8 +62,19 @@ public class FolderCheck
         {
             string relativeFolder = Path.GetRelativePath(sourcePath, srcFolder);
             string targetFolder = Path.Combine(targetPath, relativeFolder);
-            Directory.CreateDirectory(targetFolder); //creates folder unless it exists
-            // Console.WriteLine(targetFolder);
+            if (!Directory.Exists(targetFolder))
+            {
+                Directory.CreateDirectory(targetFolder); //creates folder unless it exists
+                Logger.Write($"Created folder {targetFolder}");
+            }
+            
+            
+            
+            
+            
+            
+            
+            
         }
 
 
@@ -80,14 +91,14 @@ public class FolderCheck
                 if (!srcHash.SequenceEqual(trgHash))
                 {
                     File.Copy(srcFile, targetPath + "\\" + file, overwrite: true);
-                    Console.WriteLine($"File {file} updated in folder {targetPath}");
+                    Logger.Write($"File {file} updated in folder {targetPath}");
                     //replace
                 }
             }
             else
             {
                 File.Copy(srcFile, targetPath + "\\" + file);
-                Console.WriteLine($"File {file} copied to folder {targetPath}");
+                Logger.Write($"File {file} copied to folder {targetPath}");
                 //copy file 
             }
         }
@@ -105,7 +116,7 @@ public class FolderCheck
             {
                 //delete trgFolder
                 Directory.Delete(trgFolder, true);
-                Console.WriteLine($"Directory {trgFolder} deleted.");
+                Logger.Write($"Directory {trgFolder} deleted.");
             }
         }
         var trgFiles = GetFiles(targetPath); //get files after deleting folders
@@ -116,7 +127,7 @@ public class FolderCheck
             if (!File.Exists(srcFile))
             {
                 File.Delete(trgFile);
-                Console.WriteLine($"File {trgFile} deleted.");
+                Logger.Write($"File {trgFile} deleted.");
             }
         }
         
