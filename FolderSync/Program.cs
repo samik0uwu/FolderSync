@@ -17,7 +17,7 @@ string interval = args[2]; // check if interval valid
 string logPath = args[3]; //check if exists or create
 
 FolderCheck fc = new FolderCheck(sourceFolder, targetFolder, interval, logPath);
-fc.GetSourceFiles();
+fc.CompareFiles();
 
 
 
