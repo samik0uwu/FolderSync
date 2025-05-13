@@ -1,0 +1,13 @@
+bin/
+obj/
+
+.idea/
+*.sln.iml
+
+*.user
+*.suo
+
+*.log
+
+.DS_Store
+Thumbs.db
