@@ -1,4 +1,4 @@
-# Test Task - Folder 
+# Folder Sync
 A C# console app synchronizing two folders periodically
 
 ## Features
@@ -15,13 +15,40 @@ A C# console app synchronizing two folders periodically
 - files/folder in replica but not in source deleted
 - every action logged with a timestamp
 
-## How to use
+## Run from compiled exe
 ```bash
-FolderSync.exe <source_folder_path> <replica_folder_path> <interval_in_ms> <log_file_path>
+> FolderSync.exe <source_folder_path> <replica_folder_path> <interval_in_ms> <log_file_path>
+```
+
+### Example
+```bash
+> FolderSync.exe C:\files\source C:\files\backup 300000 C:\logs\log.txt
+```
+### Arguments
+- **source_path**: full path to source folder (must exist)
+- **replica_path**: full path to replica folder (created if doesn't exist)
+- **interval_in_ms**: time interval in milliseconds between sync cycles
+- **log_path**: full path to the log file (created if doesn't exist)
+
+## ...or build it yourself!
+### Requirements
+- .NET SDK 7.0 or later
+### Clone repo
+```bash
+> git clone https://github.com/samik0uwu/FolderSync
+> cd FolderSync
+```
+### Build project
+```bash
+> dotnet build
+```
+### Run project
+```bash
+> dotnet run -- <source_folder_path> <replica_folder_path> <interval_in_ms> <log_file_path>
 ```
 ### Example
 ```bash
-FolderSync.exe C:\files\source C:\files\backup 300000 C:\logs\log.txt
+> dotnet run -- "C:\files\source" "C:\files\backup" 300000 "C:\logs\log.txt"
 ```
 
 

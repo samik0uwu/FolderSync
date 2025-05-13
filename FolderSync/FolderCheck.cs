@@ -68,26 +68,24 @@ public class FolderCheck
 
         foreach (var srcFile in srcFiles)
         {
-            string file = Path.GetRelativePath(sourcePath, srcFile); //includes subfolders
-            if (File.Exists(targetPath + "\\" + file)) //path.combine
+            string file = Path.GetRelativePath(sourcePath, srcFile);
+            string targetFile = Path.Combine(targetPath, file);
+            if (File.Exists(Path.Combine(targetPath, file))) 
             {
                 //checksum
                 var srcHash = GetHash(srcFile);
-                var trgHash = GetHash(targetPath + "\\" + file); //[ath.combine
-
+                var trgHash = GetHash(targetFile); 
 
                 if (!srcHash.SequenceEqual(trgHash))
                 {
-                    File.Copy(srcFile, targetPath + "\\" + file, overwrite: true); //path.combine
-                    Logger.Write($"File {file} updated in folder {targetPath}"); 
-                    //replace
+                    File.Copy(srcFile, targetFile, overwrite: true); //overwrite true to replace existing file
+                    Logger.Write($"File {targetFile} updated"); 
                 }
             }
             else
             {
-                File.Copy(srcFile, targetPath + "\\" + file);//path.combine
+                File.Copy(srcFile, targetFile);
                 Logger.Write($"File {file} copied to folder {targetPath}");
-                //copy file 
             }
         }
 

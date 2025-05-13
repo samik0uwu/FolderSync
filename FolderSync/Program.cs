@@ -1,9 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-
+﻿
 using FolderSync;
-
-Console.WriteLine("Hello, World!");
-Console.WriteLine(args.Length);
 
 if (args.Length != 4)
 {
@@ -27,12 +23,7 @@ if (!Directory.Exists(targetFolder))
     Directory.CreateDirectory(targetFolder);
 }
 
-if (!File.Exists(logPath)) //if log file doesnt exist, create it, then set logger path
-{
-    File.Create(logPath).Close();
-
-}
-Logger.logPath = logPath;
+Logger.Init(logPath);
 
 int intervalInt = 0;
 if (!int.TryParse(interval, out intervalInt))
