@@ -2,7 +2,7 @@ namespace FolderSync;
 
 public static class Logger
 {
-    public static string logPath { get; private set; }
+    public static string logPath { get; set; }
 
     public static void Write(string message)
     {

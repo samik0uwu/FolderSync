@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Security.Principal;
 
 namespace FolderSync;
 
@@ -7,15 +6,11 @@ public class FolderCheck
 {
     public string sourcePath { get; private set; }
     public string targetPath { get; private set; }
-    public string interval { get; private set; } //should i use timespan?
-    public string log { get; set; }
 
-    public FolderCheck(string source, string target, string interval, string log)
+    public FolderCheck(string source, string target)
     {
         this.sourcePath = source;
         this.targetPath = target;
-        this.interval = interval;
-        this.log = log;
     }
 
     private string[] GetFolders(string folderPath)
@@ -57,55 +52,46 @@ public class FolderCheck
     {
         var srcFiles = GetFiles(sourcePath);
         var srcFolders = GetFolders(sourcePath);
-        //go through folders first
+
+        //create all folders first, then files
         foreach (var srcFolder in srcFolders)
         {
             string relativeFolder = Path.GetRelativePath(sourcePath, srcFolder);
             string targetFolder = Path.Combine(targetPath, relativeFolder);
-            if (!Directory.Exists(targetFolder))
+            if (!Directory.Exists(targetFolder)) //only need to check to be able to log folder creation
             {
                 Directory.CreateDirectory(targetFolder); //creates folder unless it exists
                 Logger.Write($"Created folder {targetFolder}");
             }
-            
-            
-            
-            
-            
-            
-            
-            
         }
 
 
         foreach (var srcFile in srcFiles)
         {
             string file = Path.GetRelativePath(sourcePath, srcFile); //includes subfolders
-            if (File.Exists(targetPath + "\\" + file))
+            if (File.Exists(targetPath + "\\" + file)) //path.combine
             {
                 //checksum
                 var srcHash = GetHash(srcFile);
-                var trgHash = GetHash(targetPath + "\\" + file);
+                var trgHash = GetHash(targetPath + "\\" + file); //[ath.combine
 
 
                 if (!srcHash.SequenceEqual(trgHash))
                 {
-                    File.Copy(srcFile, targetPath + "\\" + file, overwrite: true);
-                    Logger.Write($"File {file} updated in folder {targetPath}");
+                    File.Copy(srcFile, targetPath + "\\" + file, overwrite: true); //path.combine
+                    Logger.Write($"File {file} updated in folder {targetPath}"); 
                     //replace
                 }
             }
             else
             {
-                File.Copy(srcFile, targetPath + "\\" + file);
+                File.Copy(srcFile, targetPath + "\\" + file);//path.combine
                 Logger.Write($"File {file} copied to folder {targetPath}");
                 //copy file 
             }
         }
 
         var trgFolders = GetFolders(targetPath);
-        //foreach each folder
-        //if doesnt exist in source, delete (incl. files)
         foreach (var trgFolder in
                  trgFolders.OrderByDescending(f =>
                      f.Length)) //order by descending to delete subfolders first, then parent folders
@@ -119,7 +105,7 @@ public class FolderCheck
                 Logger.Write($"Directory {trgFolder} deleted.");
             }
         }
-        var trgFiles = GetFiles(targetPath); //get files after deleting folders
+        var trgFiles = GetFiles(targetPath); //get files after deleting folders, because some files might have been deleted
         foreach (var trgFile in trgFiles)
         {
             string file = Path.GetRelativePath(targetPath, trgFile);
