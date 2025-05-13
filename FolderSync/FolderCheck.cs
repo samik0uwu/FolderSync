@@ -12,32 +12,34 @@ public class FolderCheck
 
     public FolderCheck(string source, string target, string interval, string log)
     {
-        this.sourcePath = source;
+        sourcePath = source;
         this.targetPath = target;
         this.interval = interval;
         this.log = log;
     }
-    
-    private (string[], string[]) GetFiles(string filePath)
+
+    private string[] GetFolders(string folderPath)
+    {
+        if (Directory.Exists(folderPath))
+        {
+            string[] folders = Directory.GetDirectories(folderPath, "*", SearchOption.AllDirectories);
+
+            return folders;
+        }
+
+        return null;
+    }
+
+    private string[] GetFiles(string filePath)
     {
         if (Directory.Exists(filePath))
         {
             string[] files = Directory.GetFiles(filePath, "*", SearchOption.AllDirectories);
-            foreach (var file in files)
-            {
-                Console.WriteLine(file);
-            }
 
-            string[] folders = Directory.GetDirectories(filePath, "*", SearchOption.AllDirectories);
-            foreach (var folder in folders)
-            {
-                Console.WriteLine(folder);
-            }
-
-            return (files, folders);
+            return files;
         }
 
-        return (null, null)!;
+        return null;
     }
 
     public byte[] GetHash(string source)
@@ -50,55 +52,73 @@ public class FolderCheck
             }
         }
     }
+
     public void CompareFiles()
     {
-        var (srcFiles, srcFolders) = GetFiles(sourcePath);
-
+        var srcFiles = GetFiles(sourcePath);
+        var srcFolders = GetFolders(sourcePath);
         //go through folders first
         foreach (var srcFolder in srcFolders)
         {
-            string relativeFolder=Path.GetRelativePath(sourcePath, srcFolder);
-            string targetFolder=Path.Combine(targetPath, relativeFolder);
+            string relativeFolder = Path.GetRelativePath(sourcePath, srcFolder);
+            string targetFolder = Path.Combine(targetPath, relativeFolder);
             Directory.CreateDirectory(targetFolder); //creates folder unless it exists
-            Console.WriteLine(targetFolder);
+            // Console.WriteLine(targetFolder);
         }
-        
-        
+
+
         foreach (var srcFile in srcFiles)
         {
             string file = Path.GetRelativePath(sourcePath, srcFile); //includes subfolders
-            if (File.Exists(targetPath+"\\"+file))
+            if (File.Exists(targetPath + "\\" + file))
             {
                 //checksum
-                var srcHash= GetHash(srcFile);
-                var trgHash=GetHash(targetPath+"\\"+file);
-                
-                
+                var srcHash = GetHash(srcFile);
+                var trgHash = GetHash(targetPath + "\\" + file);
+
+
                 if (!srcHash.SequenceEqual(trgHash))
                 {
-                    File.Copy(srcFile, targetPath+"\\"+file, overwrite:true);
-                    Console.WriteLine($"File {file} was updated in folder {targetPath}");
+                    File.Copy(srcFile, targetPath + "\\" + file, overwrite: true);
+                    Console.WriteLine($"File {file} updated in folder {targetPath}");
                     //replace
                 }
-                
             }
             else
             {
-                File.Copy(srcFile, targetPath+"\\"+file);
-                Console.WriteLine($"File {file} was copied to folder {targetPath}");
-               //copy file 
+                File.Copy(srcFile, targetPath + "\\" + file);
+                Console.WriteLine($"File {file} copied to folder {targetPath}");
+                //copy file 
             }
+        }
 
-            var (trgFiles, trgFolders) = GetFiles(targetPath);
-
-
-            
+        var trgFolders = GetFolders(targetPath);
+        //foreach each folder
+        //if doesnt exist in source, delete (incl. files)
+        foreach (var trgFolder in
+                 trgFolders.OrderByDescending(f =>
+                     f.Length)) //order by descending to delete subfolders first, then parent folders
+        {
+            string relativeFolder = Path.GetRelativePath(targetPath, trgFolder);
+            string sourceFolder = Path.Combine(sourcePath, relativeFolder);
+            if (!Directory.Exists(sourceFolder))
+            {
+                //delete trgFolder
+                Directory.Delete(trgFolder, true);
+                Console.WriteLine($"Directory {trgFolder} deleted.");
+            }
+        }
+        var trgFiles = GetFiles(targetPath); //get files after deleting folders
+        foreach (var trgFile in trgFiles)
+        {
+            string file = Path.GetRelativePath(targetPath, trgFile);
+            string srcFile = Path.Combine(sourcePath, file);
+            if (!File.Exists(srcFile))
+            {
+                File.Delete(trgFile);
+                Console.WriteLine($"File {trgFile} deleted.");
+            }
         }
         
-
-        //then go through replica
-        //if file doesnt exist in source, delete it
-
-        //dont forget to log everything into console, log file
     }
 }
